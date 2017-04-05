@@ -1,6 +1,6 @@
 RetroPi3D
 =========
-RetroPi3D en una librería de python para utilizar [Pi3D]{https://github.com/tipam/pi3d} de forma sencilla. Esta orientada a los juegos clásicos aunque utilice un motor 3D moderno.
+RetroPi3D en una librería de python para utilizar [Pi3D](https://github.com/tipam/pi3d) de forma sencilla. Esta orientada a los juegos clásicos aunque utilice un motor 3D moderno.
 
 Preparar virtualenv
 ===================
