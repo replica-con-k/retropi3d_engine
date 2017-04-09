@@ -40,9 +40,11 @@ class World(object):
         self.sprites[name] = Image(image, self, position)
         return name
 
-    def new_animation(self, animation, position=(0, 0), loop=False, name=None):
+    def new_animation(self, animation,
+                      position=(0, 0), fps=FPS, loop=False, name=None):
         name = name or str(uuid.uuid4())
-        self.sprites[name] = Animation(animation, self, position, loop=loop)
+        self.sprites[name] = Animation(animation, self, position,
+                                       fps=fps, loop=loop)
         return name
 
     def loop_running(self):
@@ -112,8 +114,7 @@ class Animation(Image):
     @fps.setter
     def fps(self, fps):
         self.__fps = fps
-        self.__ticks_per_frm = round(
-            float(FPS)/float(fps))
+        self.__ticks_per_frm = round(float(FPS)/float(fps))
 
     def update(self):
         self.__current_tick += 1
