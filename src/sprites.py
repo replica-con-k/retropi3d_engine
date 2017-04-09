@@ -74,3 +74,53 @@ class Image(object):
     def update(self):
         self.image.position(self.x, self.y, self.z)
         self.image.draw()
+
+
+class Animation(Image):
+    def __init__(self, frames, world, position=(0, 0), distance=5.0, fps=FPS):
+        super(Image, self).__init__(frame[0], world, position, distance)
+        self.images = [
+            pi3d.ImageSprite(frame,
+                             world.shader,
+                             w=frame.ix, h=frame.iy,
+                             x=self.x, y=self.y, z=self.z,
+                             camera=world.camera) for frame in frames]
+        self.__last_frame = len(self.images)
+        self.__current_frame = 0
+        self.__current_tick = 0
+        self.__fps = fps
+        self.__end_cb = None
+        self.fps = fps
+
+    def set_end_callback(self, cb):
+        self.__end_cb = cb
+
+    def reset(self):
+        self.__current_frame = 0
+        self.__current_tick = 0
+        
+    @property
+    def fps(self):
+        return self.__fps
+
+    @fps.setter
+    def fps(self, fps):
+        self.__fps = fps
+        self.__ticks_per_frm = round(
+            float(FPS)/float(fps))
+
+    def update(self):
+        self.__current_tick += 1
+        if self.__current_tick >= self.__ticks_per_frm:
+            self.__advance_frame()
+        self.images[self.__current_frame].position(self.x, self.y, self.z)
+        self.images[self.__current_frame].draw()
+
+    def __advance_frame(self):
+        self.__current_tick = 0
+        self.__current_frame += 1
+        if self.__current_frame == self.__last_frame:
+            self.__current_frame -= 1
+            if self.__end_cb is not None:
+                if self.__end_cb():
+                    self.__current_frame = 0
