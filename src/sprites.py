@@ -40,6 +40,11 @@ class World(object):
         self.sprites[name] = Image(image, self, position)
         return name
 
+    def new_animation(self, animation, position=(0, 0), loop=False, name=None):
+        name = name or str(uuid.uuid4())
+        self.sprites[name] = Animation(animation, self, position, loop=loop)
+        return name
+
     def loop_running(self):
         if self.display is None:
             return False
@@ -77,8 +82,9 @@ class Image(object):
 
 
 class Animation(Image):
-    def __init__(self, frames, world, position=(0, 0), distance=5.0, fps=FPS):
-        super(Image, self).__init__(frame[0], world, position, distance)
+    def __init__(self, frames, world, position=(0, 0), distance=5.0, fps=FPS,
+                 loop=False):
+        super(Animation, self).__init__(frames[0], world, position, distance)
         self.images = [
             pi3d.ImageSprite(frame,
                              world.shader,
@@ -89,12 +95,12 @@ class Animation(Image):
         self.__current_frame = 0
         self.__current_tick = 0
         self.__fps = fps
-        self.__end_cb = None
+        self.__loop = loop
         self.fps = fps
 
-    def set_end_callback(self, cb):
-        self.__end_cb = cb
-
+    def __loop(self):
+        return True
+    
     def reset(self):
         self.__current_frame = 0
         self.__current_tick = 0
@@ -120,7 +126,4 @@ class Animation(Image):
         self.__current_tick = 0
         self.__current_frame += 1
         if self.__current_frame == self.__last_frame:
-            self.__current_frame -= 1
-            if self.__end_cb is not None:
-                if self.__end_cb():
-                    self.__current_frame = 0
+            self.__current_frame = 0 if self.__loop else (self.__last_frame - 1)
