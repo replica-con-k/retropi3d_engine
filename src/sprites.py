@@ -33,17 +33,17 @@ class World(object):
         self.space = cymunk.Space()       
         self.camera = pi3d.Camera(is_3d=False)        
         self.shader = pi3d.Shader(shader_name or DEFAULT_SHADER)
-        self.sprites = {}
+        self.elements = collections.OrderedDict()
 
     def new_image(self, image, position=(0, 0), name=None):
         name = name or str(uuid.uuid4())
-        self.sprites[name] = Image(image, self, position)
+        self.elements[name] = Image(image, self, position)
         return name
 
     def new_animation(self, animation,
                       position=(0, 0), fps=FPS, loop=False, name=None):
         name = name or str(uuid.uuid4())
-        self.sprites[name] = Animation(animation, self, position,
+        self.elements[name] = Animation(animation, self, position,
                                        fps=fps, loop=loop)
         return name
 
@@ -63,8 +63,8 @@ class World(object):
 
     def update(self):
         self.space.step(1.0 / (FPS / 3.0))
-        for sprite in self.sprites.values():
-            sprite.update()
+        for element in self.elements.values():
+            element.update()
 
 
 class Image(object):
