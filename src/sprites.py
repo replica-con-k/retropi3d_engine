@@ -63,7 +63,7 @@ class World(object):
 
     def update(self):
         self.space.step(1.0 / (FPS / 3.0))
-        for element in self.elements.values():
+        for element in reversed(self.elements.values()):
             element.update()
 
 
