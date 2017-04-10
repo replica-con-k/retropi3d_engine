@@ -11,6 +11,7 @@ import random
 RESOLUTION=(1024, 768)
 
 world = retropi3d.sprites.World(RESOLUTION)
+world.new_image(src.sprites.load('../assets/background.jpg'))
 
 frames = 100
 while world.loop_running():
