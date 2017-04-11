@@ -15,12 +15,17 @@ RESOLUTION=(1024, 768)
 world = retropi3d.sprites.World(RESOLUTION)
 world.new_image(src.sprites.load('../assets/background.jpg'))
 
-frames = 100
+frames = 200
 frame_files = sorted(glob.glob('../assets/walk_*.png'))
 
 while world.loop_running():
     world.new_animation(
-        [src.sprites.load(f) for f in frame_files],
+        [src.sprites.load(f, True) for f in frame_files],
+        (random.randint(-512, 512), random.randint(-384, 384)),
+        fps=20,
+        loop=True)
+    world.new_animation(
+        [src.sprites.load(f, False) for f in frame_files],
         (random.randint(-512, 512), random.randint(-384, 384)),
         fps=20,
         loop=True)

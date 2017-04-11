@@ -12,12 +12,14 @@ FPS = 20
 DEFAULT_SHADER = "uv_flat"
 
 
-def load(image_files):
+def load(image_files, horizontal_flip=False, vertical_flip=False):
     '''
     Load one or more images, return single or list Texture() objects
     '''
     def _load_single_(image_file):
-        return pi3d.Texture(image_file)
+        flip = 1 if vertical_flip else 0
+        flip += 2 if horizontal_flip else 0
+        return pi3d.Texture(image_file, blend=False, flip=flip)
     if isinstance(image_files, str) or isinstance(image_files, unicode):
         return _load_single_(image_files)
     else:
@@ -93,6 +95,7 @@ class Animation(Image):
                              w=frame.ix, h=frame.iy,
                              x=self.x, y=self.y, z=self.z,
                              camera=world.camera) for frame in frames]
+
         self.__last_frame = len(self.images)
         self.__current_frame = 0
         self.__current_tick = 0
