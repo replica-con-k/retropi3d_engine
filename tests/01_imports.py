@@ -4,11 +4,14 @@
 
 import test
 
-test.start('Import')
+test.start('Imports')
 
 try:
     import replika
+    import replika.assets
+    import replika.sprites
+
 except ImportError:
-    test.failed('Cannot import library!')
+    test.failed('Cannot import library and modules!')
 
 test.ok()

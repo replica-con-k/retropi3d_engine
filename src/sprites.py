@@ -12,21 +12,6 @@ FPS = 20
 DEFAULT_SHADER = "uv_flat"
 
 
-def load(image_files, horizontal_flip=False, vertical_flip=False):
-    '''
-    Load one or more images, return single or list Texture() objects
-    '''
-    def _load_single_(image_file):
-        flip = 1 if vertical_flip else 0
-        flip += 2 if horizontal_flip else 0
-        return pi3d.Texture(image_file, blend=False, flip=flip)
-    if isinstance(image_files, str) or isinstance(image_files, unicode):
-        return _load_single_(image_files)
-    else:
-        # Yep, don't check if it's iterable or not :O
-        return [_load_single_(image) for image in image_files]
-
-
 class World(object):
     def __init__(self, size, shader_name=None):
         width, height = size
