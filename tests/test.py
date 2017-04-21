@@ -4,7 +4,8 @@
 
 import sys
 import logging
-logging.basicConfig(level=logging.INFO)
+import traceback
+logging.basicConfig(level=logging.DEBUG)
 
 ENABLE_QUIT = True
 _test_name = 'unknown'
@@ -26,6 +27,7 @@ def ok(message=None):
 
 def failed(message, fail_code=-1):
     logging.warning('[FAIL ] %s' % message)
+    traceback.print_exc()
     _end(ENABLE_QUIT, fail_code)
 
 if __name__ == '__main__':    
