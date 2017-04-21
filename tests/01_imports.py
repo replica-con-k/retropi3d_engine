@@ -9,6 +9,7 @@ test.start('Imports')
 try:
     import replika
     import replika.assets
+    import replika.ingame
     import replika.sprites
 
 except ImportError:
