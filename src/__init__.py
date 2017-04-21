@@ -36,16 +36,32 @@ class Game(object):
         self.shader = pi3d.Shader(_DEFAULT_SHADER_)
         self.elements = collections.OrderedDict()
         self._frame = 0
+        self._fps = fps
 
     @property
     def frame(self):
         return self._frame
 
-    def put_image(self, image, initial_position=(0, 0), name=None):
+    @property
+    def fps(self):
+        return self._fps
+
+    def __add_element__(self, element, name=None):
         name = name or str(uuid.uuid4())
-        self.elements[name] = ingame.Image(image, self, name,
-                                           initial_position)
-        return self.elements[name]
+        element.name = name
+        self.elements[name] = element
+        return element
+        
+    def put_image(self, image, initial_position=(0, 0),
+                  name=None):
+        return self.__add_element__(
+            ingame.Image(image, self, name, initial_position))
+
+    def put_animation(self, animation, initial_position=(0, 0), loop=False,
+                      fps=None, name=None):
+        return self.__add_element__(
+            ingame.Animation(animation, self, name, initial_position,
+                             fps=fps, loop=loop))
     
     @property
     def is_running(self):
