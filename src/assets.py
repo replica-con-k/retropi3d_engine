@@ -5,6 +5,8 @@
 import pi3d
 import PIL
 
+import tiling
+
 def load_image(image_file, horizontal_flip=False, vertical_flip=False):
     '''
     Load single image file, return a Texture() object
@@ -38,3 +40,9 @@ def paste_in(destination, source, position=(0, 0)):
     source = PIL.Image.fromarray(source.image, 'RGBA')
     destination.paste(source, position, mask=source)
     return pi3d.Texture(destination)
+
+def load_tileset(image_file, grid_size):
+    '''
+    Load a grid_size set of tiles, loaded from image_file
+    '''
+    return tiling.TileSet(load_image(image_file), grid_size)
