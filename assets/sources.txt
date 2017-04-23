@@ -2,4 +2,5 @@ I'm not a very good artist so I get some assets around Internet... here the sour
 
  -  walk_*.png: http://morpai.tumblr.com/post/113732953033/exercise-on-run-cycle
  -  star.png: http://mybrokenpicture.blogspot.com.es/p/pixel.html
-
+ -  tileset.png: https://vxresource.wordpress.com/2010/03/17/the-real-macks-tileset/
+ - background.jpg: https://es.pinterest.com/pin/456271005984595231/
