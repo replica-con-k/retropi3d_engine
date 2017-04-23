@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
 
+import test
+
 import glob
 
 import replika

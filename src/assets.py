@@ -3,6 +3,7 @@
 #
 
 import pi3d
+import PIL
 
 def load_image(image_file, horizontal_flip=False, vertical_flip=False):
     '''
@@ -20,3 +21,9 @@ def load_images(image_files, horizontal_flip=False, vertical_flip=False):
         load_image(
             image, horizontal_flip, vertical_flip) for image in image_files
     ]
+
+def new_image(size):
+    '''
+    Create empty RGBA image
+    '''
+    return pi3d.Texture(PIL.Image.new('RGBA', size))
