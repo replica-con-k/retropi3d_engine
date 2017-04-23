@@ -27,3 +27,14 @@ def new_image(size):
     Create empty RGBA image
     '''
     return pi3d.Texture(PIL.Image.new('RGBA', size))
+
+def paste_in(destination, source, position=(0, 0)):
+    '''
+    Paste source imagen into destination image at give position
+    '''
+    region = (position[0], position[1],
+              position[0] + source.ix, position[1] + source.iy)
+    destination = PIL.Image.fromarray(destination.image, 'RGBA')
+    source = PIL.Image.fromarray(source.image, 'RGBA')
+    destination.paste(source, position, mask=source)
+    return pi3d.Texture(destination)
