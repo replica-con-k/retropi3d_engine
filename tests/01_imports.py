@@ -11,6 +11,7 @@ try:
     import replika.assets
     import replika.ingame
     import replika.sprites
+    import replika.puppets
 
 except ImportError:
     test.failed('Cannot import library and modules!')
