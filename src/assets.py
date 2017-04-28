@@ -11,6 +11,8 @@ def load_image(image_file, horizontal_flip=False, vertical_flip=False):
     '''
     Load single image file, return a Texture() object
     '''
+    if image_file is None:
+        return 
     flip = 1 if vertical_flip else 0
     flip += 2 if horizontal_flip else 0
     return pi3d.Texture(image_file, blend=False, flip=flip)
@@ -32,7 +34,7 @@ def new_image(size):
 
 def paste_in(destination, source, position=(0, 0)):
     '''
-    Paste source imagen into destination image at give position
+    Paste source image into destination image at given position
     '''
     region = (position[0], position[1],
               position[0] + source.ix, position[1] + source.iy)

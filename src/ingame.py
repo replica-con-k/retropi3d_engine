@@ -4,13 +4,29 @@
 
 import uuid
 import pi3d
-import cymunk
-import collections
 
 
-class Image(object):
+class InGameElement(object):
+    def __init__(self, game, name):
+        self.name = name
+        self.game = game
+        self.__living = True
+
+    @property
+    def is_live(self):
+        return self.__living
+
+    def kill(self):
+        self.__living = False
+
+    def update(self):
+        pass
+
+
+class Image(InGameElement):
     def __init__(self, texture, game, name,
                  position=(0, 0), distance=5.0):
+        super(Image, self).__init__(game, name)
         self.x, self.y = position
         self.z = distance
         self.image = pi3d.ImageSprite(texture,
@@ -18,8 +34,6 @@ class Image(object):
                                       w=texture.ix, h=texture.iy,
                                       x=self.x, y=self.y, z=self.z,
                                       camera=game.camera)
-        self.name = name
-        self.game = game
                 
     def update(self):
         self.image.position(self.x, self.y, self.z)
@@ -32,11 +46,15 @@ class Animation(Image):
         super(Animation, self).__init__(textures[0], game, name, position,
                                         distance)
         self.images = [
-            pi3d.ImageSprite(frame,
-                             game.shader,
-                             w=frame.ix, h=frame.iy,
-                             x=self.x, y=self.y, z=self.z,
-                             camera=game.camera) for frame in textures]
+            pi3d.ImageSprite(
+                frame, game.shader,
+                w=frame.ix, h=frame.iy,
+                x=self.x, y=self.y, z=self.z,
+                camera=game.camera) for frame in list(filter(
+                    (lambda x: x is not None), textures))
+        ]
+        if textures[-1] is None:
+            self.images += [None]
         self.__frames = len(self.images)
         self.__current_frame = 0
         self.__current_tick = 0
@@ -90,13 +108,15 @@ class Animation(Image):
             self.__current_frame = 0
                 
 
-class Puppet(Animation):
+class Puppet(InGameElement):
     def __init__(self, action_frames, game, name,
                  position=(0, 0), distance=5.0, fps=None):
+        super(Puppet, self).__init__(game, name)
+        
         assert(isinstance(action_frames, dict))
         assert('initial' in action_frames.keys())
         self.animations = {
-            'initial': super(Puppet, self).__init__(
+            'initial': Animation(
                 action_frames['initial'], game, name, position, distance, fps)
         }
         for action in action_frames.keys():
@@ -105,8 +125,6 @@ class Puppet(Animation):
             self.animations[action] = Animation(
                 action_frames[action], game, name, position, distance, fps)
         self.__current_state = 'initial'
-        self.game = game
-        self.name = name
         
     @property
     def current_animation(self):

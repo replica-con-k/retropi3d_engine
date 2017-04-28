@@ -51,18 +51,24 @@ class Game(object):
         element.name = name
         self.elements[name] = element
         return element
-        
-    def put_image(self, image, initial_position=(0, 0),
-                  name=None):
-        return self.__add_element__(
-            ingame.Image(image, self, name, initial_position))
 
-    def put_animation(self, animation, initial_position=(0, 0), loop=False,
+    def __remove_element__(self, element):
+        name = element.name
+        del(self.elements[name])
+
+    def put_image(self, image, position=(0, 0), name=None):
+        return self.__add_element__(ingame.Image(image, self, name, position))
+
+    def put_animation(self, animation, position=(0, 0), loop=False,
                       fps=None, name=None):
-        return self.__add_element__(
-            ingame.Animation(animation, self, name, initial_position,
-                             fps=fps, loop=loop))
-    
+        return self.__add_element__(ingame.Animation(
+            animation, self, name, position, fps=fps, loop=loop))
+
+    def spawn_puppet(self, puppet_animations, position=(0, 0),
+                     fps=None, name=None):
+        return self.__add_element__(ingame.Puppet(
+            puppet_animations, self, name, position, fps=fps))
+                          
     @property
     def is_running(self):
         if self.display is None:
@@ -82,8 +88,14 @@ class Game(object):
     def update(self):
         self._frame += 1
         _INPUTS_.do_input_events()
+        dead_elements = []
         for element in reversed(self.elements.values()):
-            element.update()
+            if element.is_live:
+                element.update()
+            else:
+                dead_elements.append(element.name)
+        for element in dead_elements:
+            self.__remove_element__(element)
 
 
 def _keyboard_handler_(sourceType, sourceIndex, key, value):
