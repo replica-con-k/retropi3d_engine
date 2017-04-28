@@ -24,5 +24,7 @@ while game.is_running:
     game.update()
     if game.frame >= 100:
         game.quit()
+    if replika.key_state(1):
+        puppet.kill()
 
 test.ok()

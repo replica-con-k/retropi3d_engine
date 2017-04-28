@@ -53,8 +53,9 @@ class Game(object):
         return element
 
     def __remove_element__(self, element):
-        name = element.name
-        del(self.elements[name])
+        element_name = element.name if (
+            isinstance(element, ingame.InGameElement)) else element
+        del(self.elements[element_name])
 
     def put_image(self, image, position=(0, 0), name=None):
         return self.__add_element__(ingame.Image(image, self, name, position))
