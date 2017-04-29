@@ -64,6 +64,10 @@ class Animation(Image):
             self.loop = loop
             
     @property
+    def finished(self):
+        return (self.__current_frame + 1 >= self.__frames) and not self.loop
+    
+    @property
     def loop(self):
         return self.images[-1] is None
 
@@ -112,7 +116,6 @@ class Puppet(InGameElement):
     def __init__(self, action_frames, game, name,
                  position=(0, 0), distance=5.0, fps=None):
         super(Puppet, self).__init__(game, name)
-        
         assert(isinstance(action_frames, dict))
         assert('initial' in action_frames.keys())
         self.animations = {
@@ -127,6 +130,12 @@ class Puppet(InGameElement):
         self.__current_state = 'initial'
         
     @property
+    def is_live(self):
+        if self.__current_state == 'final':
+            return not self.current_animation.finished
+        return super(Puppet, self).is_live
+
+    @property
     def current_animation(self):
         return self.animations[self.__current_state]
 
@@ -140,11 +149,17 @@ class Puppet(InGameElement):
         self._switch_animation_(state)
 
     def _switch_animation_(self, animation):
-        self.current_animation.reset()
+        if animation not in self.animations.keys():
+            return
         self.__current_state = animation
+        self.current_animation.reset()
 
     def reset(self):
         self._switch_animation_('initial')
+
+    def kill(self):
+        self._switch_animation_('final')
+        super(Puppet, self).kill()
 
     @property
     def loop(self):

@@ -4,3 +4,4 @@ I'm not a very good artist so I get some assets around Internet... here the sour
  -  star.png: http://mybrokenpicture.blogspot.com.es/p/pixel.html
  -  tileset.png: https://vxresource.wordpress.com/2010/03/17/the-real-macks-tileset/
  - background.jpg: https://es.pinterest.com/pin/456271005984595231/
+ - explosion-sprite.png: https://es.pinterest.com/chrisbivins75/pixel-art/

@@ -19,8 +19,14 @@ class TileSet(object):
     def __len__(self):
         return self.__size[0] * self.__size[1]
 
-
+    def __iter__(self):
+        return iter([self[e] for e in range(len(self))])
+    
     def __getitem__(self, item):
+        if item == -1:
+            return self[len(self) - 1]
+        if item not in range(len(self)):
+            raise ValueError
         tile_row = item / int(self.__size[0])
         tile_column = item - (tile_row * int(self.__size[0]))
         box_origin = (tile_column * self.__cell_size[0],

@@ -107,8 +107,9 @@ def _keyboard_handler_(sourceType, sourceIndex, key, value):
     print sourceType, sourceIndex, key, value
 
 
-def new_game(resolution=_DEFAULT_RESOLUTION_, fps=_DEFAULT_FPS_):
+def new_game(resolution=_DEFAULT_RESOLUTION_, fps=_DEFAULT_FPS_,
+             do_input=True):
     global _INPUTS_
-    if isinstance(_INPUTS_, _No_input_):
+    if isinstance(_INPUTS_, _No_input_) and do_input:
         _INPUTS_ = pi3d.event.Event.InputEvents(_keyboard_handler_)
     return Game(resolution, fps)
