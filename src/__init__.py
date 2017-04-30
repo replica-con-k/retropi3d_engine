@@ -34,10 +34,23 @@ class Game(object):
                                            frames_per_second=fps)
         self.camera = pi3d.Camera(is_3d=False)
         self.shader = pi3d.Shader(_DEFAULT_SHADER_)
-        self.elements = collections.OrderedDict()
+        self.scenes = collections.OrderedDict()
         self._frame = 0
         self._fps = fps
 
+        self.new_scene('initial')
+        self.__current_scene = 'initial'
+
+    def new_scene(self, name=None):
+        name = name or str(uuid.uuid4())
+        scene = ingame.Scene(self, name)
+        self.scenes[name] = scene
+        return scene
+        
+    @property
+    def current_scene(self):
+        return self.scenes[self.__current_scene]
+    
     @property
     def frame(self):
         return self._frame
@@ -46,29 +59,18 @@ class Game(object):
     def fps(self):
         return self._fps
 
-    def __add_element__(self, element, name=None):
-        name = name or str(uuid.uuid4())
-        element.name = name
-        self.elements[name] = element
-        return element
-
-    def __remove_element__(self, element):
-        element_name = element.name if (
-            isinstance(element, ingame.InGameElement)) else element
-        del(self.elements[element_name])
-
     def put_image(self, image, position=(0, 0), name=None):
-        return self.__add_element__(ingame.Image(image, self, name, position))
+        return self.current_scene.put_image(image, position, name)
 
     def put_animation(self, animation, position=(0, 0), loop=False,
                       fps=None, name=None):
-        return self.__add_element__(ingame.Animation(
-            animation, self, name, position, fps=fps, loop=loop))
+        return self.current_scene.put_animation(
+            animation, position, loop, fps, name)
 
     def spawn_puppet(self, puppet_animations, position=(0, 0),
                      fps=None, name=None):
-        return self.__add_element__(ingame.Puppet(
-            puppet_animations, self, name, position, fps=fps))
+        return self.current_scene.spawn_puppet(
+            puppet_animations, position, fps, name)
                           
     @property
     def is_running(self):
@@ -79,9 +81,9 @@ class Game(object):
     def quit(self):
         if self.display is None:
             return
+        self.current_scene.quit()
         self.display.destroy()
         self.display = None
-        self.elements = collections.OrderedDict()
 
     def __del__(self):
         self.quit()
@@ -89,14 +91,7 @@ class Game(object):
     def update(self):
         self._frame += 1
         _INPUTS_.do_input_events()
-        dead_elements = []
-        for element in reversed(self.elements.values()):
-            if element.is_live:
-                element.update()
-            else:
-                dead_elements.append(element.name)
-        for element in dead_elements:
-            self.__remove_element__(element)
+        self.current_scene.update()
 
 
 def _keyboard_handler_(sourceType, sourceIndex, key, value):

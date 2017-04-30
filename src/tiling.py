@@ -26,7 +26,7 @@ class TileSet(object):
         if item == -1:
             return self[len(self) - 1]
         if item not in range(len(self)):
-            raise ValueError
+            item %= len(self)
         tile_row = item / int(self.__size[0])
         tile_column = item - (tile_row * int(self.__size[0]))
         box_origin = (tile_column * self.__cell_size[0],
