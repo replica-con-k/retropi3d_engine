@@ -50,6 +50,14 @@ class Game(object):
     @property
     def current_scene(self):
         return self.scenes[self.__current_scene]
+
+    def switch_scene(self, scene):
+        if isinstance(scene, ingame.Scene):
+            scene = scene.name
+        if scene not in self.scenes.keys():
+            return False
+        self.__current_scene = scene
+        return True
     
     @property
     def frame(self):
