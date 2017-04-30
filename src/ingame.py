@@ -43,9 +43,10 @@ class Scene(object):
         return self.__add_element__(Image(image, self, name, position))
 
     def put_animation(self, animation, position=(0, 0), loop=False,
-                      fps=None, name=None):
+                      fps=None, name=None, autokill=True):
         return self.__add_element__(
-            Animation(animation, self, name, position, fps=fps, loop=loop))
+            Animation(animation, self, name, position, fps=fps, loop=loop,
+                      autokill=autokill))
 
     def spawn_puppet(self, puppet_animations, position=(0, 0),
                      fps=None, name=None):
@@ -118,8 +119,13 @@ class Animation(Image):
         self.__current_tick = 0
         self.__fps = None
         self.fps = scene.fps if fps is None else fps
-        if loop is not None:
-            self.loop = loop
+        if autokill:
+            self.loop = False
+            self.autokill = True
+        else:
+            if loop is not None:
+                self.loop = loop
+            self.autokill = False
             
     @property
     def finished(self):
@@ -166,6 +172,8 @@ class Animation(Image):
         self.__current_frame += 1
         if self.__current_frame >= self.__frames:
             self.__current_frame = self.__frames - 1
+            if self.autokill:
+                self.kill()
         if self.images[self.__current_frame] is None:
             self.__current_frame = 0
                 
@@ -202,12 +210,11 @@ class Puppet(InGameElement):
         return self.__current_state
 
     def set_state(self, state):
-        if self.current_state == 'final':
+        if ((self.current_state == 'final') or
+            (state not in self.animations.keys())):
             return False
         if state == self.current_state:
             return True
-        if state not in self.animations.keys():
-            return False
         return self._switch_animation_(state)
 
     def _switch_animation_(self, animation):
