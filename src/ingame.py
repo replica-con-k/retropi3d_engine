@@ -119,13 +119,11 @@ class Animation(Image):
         self.__current_tick = 0
         self.__fps = None
         self.fps = scene.fps if fps is None else fps
-        if autokill:
-            self.loop = False
-            self.autokill = True
-        else:
-            if loop is not None:
-                self.loop = loop
+        if loop:
             self.autokill = False
+        else:
+            self.autokill = autokill
+        self.loop = loop
             
     @property
     def finished(self):
