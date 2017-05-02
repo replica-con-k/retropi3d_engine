@@ -42,11 +42,12 @@ class Scene(object):
     def put_image(self, image, position=(0, 0), name=None):
         return self.__add_element__(Image(image, self, name, position))
 
-    def put_animation(self, animation, position=(0, 0), loop=False,
-                      fps=None, name=None, autokill=True):
+    def put_animation(self, animation, position=(0, 0), loop=None,
+                      fps=None, name=None):
         return self.__add_element__(
-            Animation(animation, self, name, position, fps=fps, loop=loop,
-                      autokill=autokill))
+            Loop(animation, self, name, position, fps=fps)
+            if loop else
+            Animation(animation, self, name, position, fps=fps))
 
     def spawn_puppet(self, puppet_animations, position=(0, 0),
                      fps=None, name=None):
@@ -101,7 +102,7 @@ class Image(InGameElement):
 
 class Animation(Image):
     def __init__(self, textures, scene, name, position=(0, 0), distance=5.0,
-                 fps=None, loop=None, autokill=False):
+                 fps=None):
         super(Animation, self).__init__(textures[0], scene, name, position,
                                         distance)
         self.images = [
@@ -109,45 +110,22 @@ class Animation(Image):
                 frame, scene.shader,
                 w=frame.ix, h=frame.iy,
                 x=self.x, y=self.y, z=self.z,
-                camera=scene.camera) for frame in list(filter(
-                    (lambda x: x is not None), textures))
+                camera=scene.camera
+            ) for frame in textures
         ]
-        if textures[-1] is None:
-            self.images += [None]
-        self.__frames = len(self.images)
-        self.__current_frame = 0
-        self.__current_tick = 0
+        self.frames = len(self.images)
+        self.current_frame = 0
+        self.current_tick = 0
         self.__fps = None
         self.fps = scene.fps if fps is None else fps
-        if loop:
-            self.autokill = False
-        else:
-            self.autokill = autokill
-        self.loop = loop
             
     @property
     def finished(self):
-        return (self.__current_frame + 1 >= self.__frames) and not self.loop
-    
-    @property
-    def loop(self):
-        return self.images[-1] is None
-
-    @loop.setter
-    def loop(self, loop):
-        self.reset()
-        if loop:
-            if self.images[-1] is not None:
-                self.images += [None]
-                self.__frames += 1
-        else:
-            if self.images[-1] is None:
-                self.images = self.images[:-1]
-                self.__frames -= 1
+        return (self.current_frame + 1 >= self.frames)
     
     def reset(self):
-        self.__current_frame = 0
-        self.__current_tick = 0
+        self.current_frame = 0
+        self.current_tick = 0
         
     @property
     def fps(self):
@@ -159,22 +137,35 @@ class Animation(Image):
         self.__ticks_per_frm = round(float(self.scene.fps)/float(fps))
 
     def update(self):
-        self.__current_tick += 1
-        if self.__current_tick >= self.__ticks_per_frm:
-            self.__advance_frame()
-        self.images[self.__current_frame].position(self.x, self.y, self.z)
-        self.images[self.__current_frame].draw()
+        self.current_tick += 1
+        if self.current_tick >= self.__ticks_per_frm:
+            self.advance_frame()
+        self.images[self.current_frame].position(self.x, self.y, self.z)
+        self.images[self.current_frame].draw()
 
-    def __advance_frame(self):
-        self.__current_tick = 0
-        self.__current_frame += 1
-        if self.__current_frame >= self.__frames:
-            self.__current_frame = self.__frames - 1
-            if self.autokill:
-                self.kill()
-        if self.images[self.__current_frame] is None:
-            self.__current_frame = 0
-                
+    def advance_frame(self):
+        self.current_tick = 0
+        if self.current_frame >= self.frames - 1:
+            return
+        self.current_frame += 1
+
+
+class Loop(Animation):
+    def __init__(self, textures, scene, name, position=(0, 0), distance=5.0,
+                 fps=None):
+        super(Loop, self).__init__(
+            textures, scene, name, position, distance, fps)
+            
+    @property
+    def finished(self):
+        return False
+    
+    def advance_frame(self):
+        self.current_tick = 0
+        self.current_frame += 1
+        if self.current_frame >= self.frames:
+            self.current_frame = 0
+
 
 class Puppet(InGameElement):
     def __init__(self, action_frames, scene, name,
@@ -183,13 +174,13 @@ class Puppet(InGameElement):
         assert(isinstance(action_frames, dict))
         assert('initial' in action_frames.keys())
         self.animations = {
-            'initial': Animation(
+            'initial': Loop(
                 action_frames['initial'], scene, name, position, distance, fps)
         }
         for action in action_frames.keys():
             if action == 'initial':
                 continue
-            self.animations[action] = Animation(
+            self.animations[action] = Loop(
                 action_frames[action], scene, name, position, distance, fps)
         self.__current_state = 'initial'
         
@@ -228,14 +219,6 @@ class Puppet(InGameElement):
     def kill(self):
         self._switch_animation_('final')
         super(Puppet, self).kill()
-
-    @property
-    def loop(self):
-        return self.current_animation.loop
-
-    @loop.setter
-    def loop(self, loop):
-        self.current_animation.loop = loop
 
     @property
     def fps(self):

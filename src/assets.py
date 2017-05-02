@@ -11,8 +11,6 @@ def load_image(image_file, horizontal_flip=False, vertical_flip=False):
     '''
     Load single image file, return a Texture() object
     '''
-    if image_file is None:
-        return 
     flip = 1 if vertical_flip else 0
     flip += 2 if horizontal_flip else 0
     return pi3d.Texture(image_file, blend=False, flip=flip)

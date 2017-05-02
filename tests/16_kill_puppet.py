@@ -11,11 +11,12 @@ import replika.assets
 
 test.start('Kill puppet')
 game = replika.new_game()
-explosion_animation = replika.assets.load_tileset('../assets/explosion-sprite.png',
-                                                  grid_size=(5, 3))
+explosion_animation = replika.assets.load_tileset(
+    '../assets/explosion-sprite.png',
+    grid_size=(5, 3))
 puppet = game.spawn_puppet({
     'initial': replika.assets.load_images(
-        sorted(glob.glob('../assets/walk_*.png')) + [None]),
+        sorted(glob.glob('../assets/walk_*.png'))),
     'final': explosion_animation
 })
 

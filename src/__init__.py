@@ -71,9 +71,9 @@ class Game(object):
         return self.current_scene.put_image(image, position, name)
 
     def put_animation(self, animation, position=(0, 0), loop=False,
-                      fps=None, name=None, autokill=True):
+                      fps=None, name=None):
         return self.current_scene.put_animation(
-            animation, position, loop, fps, name, autokill)
+            animation, position, loop, fps, name)
 
     def spawn_puppet(self, puppet_animations, position=(0, 0),
                      fps=None, name=None):

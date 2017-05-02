@@ -15,9 +15,10 @@ K_QUIT = 1
 
 test.start('Move puppet')
 game = replika.new_game()
-move_right = replika.assets.load_images(sorted(glob.glob('../assets/walk_*.png')) + [None])
-move_left = replika.assets.load_images(sorted(glob.glob('../assets/walk_*.png')) + [None],
-                                       horizontal_flip=True)
+move_right = replika.assets.load_images(
+    sorted(glob.glob('../assets/walk_*.png')))
+move_left = replika.assets.load_images(
+    sorted(glob.glob('../assets/walk_*.png')), horizontal_flip=True)
 explosion = replika.assets.load_tileset('../assets/explosion-sprite.png',
                                         grid_size=(5, 3))
 puppet = game.spawn_puppet({

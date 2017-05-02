@@ -15,7 +15,7 @@ game = replika.new_game()
 try:
     puppet = game.spawn_puppet({
         'initial': replika.assets.load_images(
-            sorted(glob.glob('../assets/walk_*.png')) + [None])
+            sorted(glob.glob('../assets/walk_*.png')))
     })
 except Exception:
     test.failed('Cannot instance a puppet')
