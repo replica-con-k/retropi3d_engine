@@ -7,7 +7,7 @@ import replika
 import replika.assets
 
 game = replika.new_game()
-image = replika.assets.load_image('../assets/background.jpg')
+image = replika.assets.image('../assets/background.jpg')
 
 
 test.start('Create scenes')

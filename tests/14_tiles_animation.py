@@ -7,19 +7,20 @@ import replika
 import replika.assets
 
 game = replika.new_game(do_input=False)
-tileset = replika.assets.load_tileset('../assets/explosion-sprite.png',
-                                      grid_size=(5, 3))
+animation = replika.assets.Loop(
+    replika.assets.load_tileset('../assets/explosion-sprite.png',
+                                grid_size=(5, 3)))
     
 test.start('Animate tiles')
 
 try:
-    game.put_animation(tileset, loop=True)
+    game.put_animation(animation)
 except:
     test.failed('Cannot animate tiles')
     
 while game.is_running:
     game.update()
-    if game.frame >= 100:
+    if game.frame >= 50:
         game.quit()
 
 test.ok()

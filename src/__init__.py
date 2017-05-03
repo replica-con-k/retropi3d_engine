@@ -70,15 +70,13 @@ class Game(object):
     def put_image(self, image, position=(0, 0), name=None):
         return self.current_scene.put_image(image, position, name)
 
-    def put_animation(self, animation, position=(0, 0), loop=False,
-                      fps=None, name=None):
-        return self.current_scene.put_animation(
-            animation, position, loop, fps, name)
+    def put_animation(self, animation, position=(0, 0), name=None,
+                      persistent=True):
+        return self.current_scene.put_animation(animation, position, name,
+                                                persistent)
 
-    def spawn_puppet(self, puppet_animations, position=(0, 0),
-                     fps=None, name=None):
-        return self.current_scene.spawn_puppet(
-            puppet_animations, position, fps, name)
+    def spawn_puppet(self, animations, position=(0, 0), name=None):
+        return self.current_scene.spawn_puppet(animations, position, name)
                           
     @property
     def is_running(self):

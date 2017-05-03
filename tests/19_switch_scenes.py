@@ -7,9 +7,8 @@ import replika
 import replika.assets
 
 game = replika.new_game()
-image1 = replika.assets.load_image('../assets/background.jpg')
-image2 = replika.assets.load_image('../assets/background.jpg',
-                                   horizontal_flip=True)
+image1 = replika.assets.image('../assets/background.jpg')
+image2 = replika.assets.image('../assets/background.jpg', horizontal_flip=True)
 game.put_image(image1)
 
 scene2 = game.new_scene()

@@ -15,32 +15,27 @@ K_QUIT = 1
 
 test.start('Move puppet')
 game = replika.new_game()
-move_right = replika.assets.load_images(
-    sorted(glob.glob('../assets/walk_*.png')))
-move_left = replika.assets.load_images(
-    sorted(glob.glob('../assets/walk_*.png')), horizontal_flip=True)
-explosion = replika.assets.load_tileset('../assets/explosion-sprite.png',
-                                        grid_size=(5, 3))
-puppet = game.spawn_puppet({
-    'initial': move_right,
-    'move_right': move_right,
-    'move_left': move_left,
-    'final': explosion
-})
+puppet = game.spawn_puppet(replika.assets.Puppet({
+    'initial': replika.assets.Loop(
+        replika.assets.images(sorted(glob.glob('../assets/walk_*.png')))),
+    'move_right': replika.assets.Loop(
+        replika.assets.images(sorted(glob.glob('../assets/walk_*.png')))),
+    'move_left': replika.assets.Loop(
+        replika.assets.images(sorted(glob.glob('../assets/walk_*.png')),
+                              horizontal_flip=True))
+}))
 
 while game.is_running:
     game.update()
-    if game.frame >= 200:
+    if game.frame >= 100:
         break
-    if replika.key_state(K_QUIT):
-        puppet.kill()
-
     try:
         if replika.key_state(K_LEFT):
             puppet.set_state('move_left')
-
         if replika.key_state(K_RIGHT):
             puppet.set_state('move_right')
+        if replika.key_state(K_QUIT):
+            puppet.kill()
     except:
         test.failed('Cannot move puppet')
 

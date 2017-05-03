@@ -9,8 +9,8 @@ import replika
 import replika.assets
 
 
-background = replika.assets.load_image('../assets/background.jpg')
-star = replika.assets.load_image('../assets/star.png')
+background = replika.assets.image('../assets/background.jpg')
+star = replika.assets.image('../assets/star.png')
 
 game = replika.new_game()
 game.put_image(background)
@@ -23,7 +23,7 @@ try:
                        (random.randint(-512, 512),
                         random.randint(-384, 384)))
         game.update()
-        if game.frame >= 100:
+        if game.frame >= 50:
             game.quit()
 except:
     test.failed('Cannot draw multiple images')

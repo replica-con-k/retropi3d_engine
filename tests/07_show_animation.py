@@ -9,21 +9,22 @@ import replika
 import replika.assets
 
 game = replika.new_game()
-background = replika.assets.load_image('../assets/background.jpg')
+background = replika.assets.image('../assets/background.jpg')
 game.put_image(background)
 
-animation_frames = replika.assets.load_images(
-    sorted(glob.glob('../assets/walk_*.png')))
+animation = replika.assets.Animation(
+    replika.assets.images(sorted(glob.glob('../assets/walk_*.png')))
+)
 
 test.start('Show animation')
 try:
-    game.put_animation(animation_frames)
+    game.put_animation(animation)
 except:
     test.failed('Cannot show animation')
     
 while game.is_running:
     game.update()
-    if game.frame >= 100:
+    if game.frame >= 50:
         game.quit()
 
 test.ok()

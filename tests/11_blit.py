@@ -10,8 +10,8 @@ import replika.assets
 
 game = replika.new_game()
 
-star = replika.assets.load_image('../assets/star.png')
-size = (star.ix * 2, star.iy * 2)
+star = replika.assets.image('../assets/star.png')
+size = (star.width * 2, star.height * 2)
 
 image = replika.assets.new_image(size)
 
@@ -22,7 +22,7 @@ try:
     game.put_image(image)
     while game.is_running:
         game.update()
-        if game.frame >= 100:
+        if game.frame >= 50:
             game.quit()   
 except:
     test.failed('Cannot blit images')

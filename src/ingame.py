@@ -7,6 +7,7 @@ import collections
 
 import pi3d
 
+import replika.assets
 
 class Scene(object):
     def __init__(self, game, name):
@@ -42,17 +43,19 @@ class Scene(object):
     def put_image(self, image, position=(0, 0), name=None):
         return self.__add_element__(Image(image, self, name, position))
 
-    def put_animation(self, animation, position=(0, 0), loop=None,
-                      fps=None, name=None):
-        return self.__add_element__(
-            Loop(animation, self, name, position, fps=fps)
-            if loop else
-            Animation(animation, self, name, position, fps=fps))
+    def put_animation(self, animation, position=(0, 0), name=None,
+                      persistent=True):
+        if isinstance(animation, replika.assets.Loop):
+            return self.__add_element__(
+                Loop(animation, self, name, position))
+        else:
+            return self.__add_element__(
+                Animation(animation, self, name, position,
+                          persistent=persistent))
 
-    def spawn_puppet(self, puppet_animations, position=(0, 0),
-                     fps=None, name=None):
+    def spawn_puppet(self, animations, position=(0, 0), name=None):
         return self.__add_element__(
-            Puppet(puppet_animations, self, name, position, fps=fps))
+            Puppet(animations, self, name, position))
 
     def update(self):
         dead_elements = []
@@ -84,14 +87,21 @@ class InGameElement(object):
 
 
 class Image(InGameElement):
-    def __init__(self, texture, scene, name,
-                 position=(0, 0), distance=5.0):
+    def __init__(self, image_asset, scene, name,
+                 position=None, distance=5.0):
         super(Image, self).__init__(scene, name)
-        self.x, self.y = position
+        if position is None:
+            if image_asset.position is not None:
+                self.x, self.y = image_asset.position
+            else:
+                self.x, self.y = (0, 0)
+        else:
+            self.x, self.y = position
         self.z = distance
-        self.image = pi3d.ImageSprite(texture,
+        self.image = pi3d.ImageSprite(image_asset.texture,
                                       scene.shader,
-                                      w=texture.ix, h=texture.iy,
+                                      w=image_asset.width,
+                                      h=image_asset.height,
                                       x=self.x, y=self.y, z=self.z,
                                       camera=scene.camera)
                 
@@ -101,24 +111,40 @@ class Image(InGameElement):
 
 
 class Animation(Image):
-    def __init__(self, textures, scene, name, position=(0, 0), distance=5.0,
-                 fps=None):
-        super(Animation, self).__init__(textures[0], scene, name, position,
-                                        distance)
+    def __init__(self, animation_asset, scene, name,
+                 position=None, distance=5.0, fps=None, persistent=True):
+        super(Animation, self).__init__(animation_asset.first_frame,
+                                        scene, name, position, distance)
         self.images = [
             pi3d.ImageSprite(
-                frame, scene.shader,
-                w=frame.ix, h=frame.iy,
+                frame.texture, scene.shader,
+                w=frame.width, h=frame.height,
                 x=self.x, y=self.y, z=self.z,
                 camera=scene.camera
-            ) for frame in textures
+            ) for frame in animation_asset.images
         ]
         self.frames = len(self.images)
         self.current_frame = 0
         self.current_tick = 0
+
+        if position is None:
+            if animation_asset.position is None:
+                self.x, self.y = (0, 0)
+            else:
+                self.x, self.y = animation_asset.position
+        else:
+            self.x, self.y = position
+
         self.__fps = None
-        self.fps = scene.fps if fps is None else fps
-            
+        if fps is None:
+            if animation_asset.fps is None:
+                self.fps = scene.fps
+            else:
+                self.fps = animation_asset.fps
+        else:
+            self.fps = fps
+        self.persistent = persistent
+
     @property
     def finished(self):
         return (self.current_frame + 1 >= self.frames)
@@ -146,15 +172,17 @@ class Animation(Image):
     def advance_frame(self):
         self.current_tick = 0
         if self.current_frame >= self.frames - 1:
+            if not self.persistent:
+                self.kill()
             return
         self.current_frame += 1
 
 
 class Loop(Animation):
-    def __init__(self, textures, scene, name, position=(0, 0), distance=5.0,
-                 fps=None):
+    def __init__(self, animation_asset, scene, name, position=None,
+                 distance=5.0, fps=None):
         super(Loop, self).__init__(
-            textures, scene, name, position, distance, fps)
+            animation_asset, scene, name, position, distance, fps)
             
     @property
     def finished(self):
@@ -168,22 +196,28 @@ class Loop(Animation):
 
 
 class Puppet(InGameElement):
-    def __init__(self, action_frames, scene, name,
-                 position=(0, 0), distance=5.0, fps=None):
+    def __init__(self, puppet_asset, scene, name, position=None,
+                 distance=5.0):
         super(Puppet, self).__init__(scene, name)
-        assert(isinstance(action_frames, dict))
-        assert('initial' in action_frames.keys())
-        self.animations = {
-            'initial': Loop(
-                action_frames['initial'], scene, name, position, distance, fps)
-        }
-        for action in action_frames.keys():
-            if action == 'initial':
-                continue
-            self.animations[action] = Loop(
-                action_frames[action], scene, name, position, distance, fps)
+        self.animations = {}
+        self.position = position
+        self.distance = distance
         self.__current_state = 'initial'
+        for action in puppet_asset.actions:
+            self.animations[action] = self._ingame_(puppet_asset[action])
+
         
+    def _ingame_(self, animation_asset):
+        if isinstance(animation_asset, replika.assets.Loop):
+            return Loop(animation_asset, self.scene, self.name,
+                        position=self.position,
+                        distance=self.distance)
+        elif isinstance(animation_asset, replika.assets.Animation):
+            return Animation(animation_asset, self.scene, self.name,
+                             position=self.position,
+                             distance=self.distance)
+        raise ValueError
+
     @property
     def is_live(self):
         if self.__current_state == 'final':

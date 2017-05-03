@@ -10,6 +10,7 @@ try:
     import replika
     import replika.assets
     import replika.ingame
+    import replika.tiling
 
 except ImportError:
     test.failed('Cannot import library and modules!')
