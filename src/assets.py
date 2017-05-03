@@ -48,6 +48,10 @@ class Animation(object):
         return self.images[0]
 
     @property
+    def size(self):
+        return self.first_frame.size
+    
+    @property
     def as_loop(self):
         return Loop(self.images, self.position, self.fps)
 
@@ -70,6 +74,10 @@ class Puppet(object):
 
     def __getitem__(self, item):
         return self.animations[item]
+
+    @property
+    def size(self):
+        return self.animations['initial'].size
 
     
 def image(image_file, horizontal_flip=False, vertical_flip=False,

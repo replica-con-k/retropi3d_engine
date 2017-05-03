@@ -9,6 +9,12 @@ import pi3d
 
 import ingame
 
+try:
+    import pymunk
+    _USE_PYMUNK_ = True
+except ImportError:
+    _USE_PYMUNK_ = False
+
 _DEFAULT_RESOLUTION_ = (1024, 768)
 _DEFAULT_FPS_ = 20
 _DEFAULT_SHADER_ = 'uv_flat'

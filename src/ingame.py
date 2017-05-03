@@ -8,6 +8,8 @@ import collections
 import pi3d
 
 import replika.assets
+import replika.physics
+
 
 class Scene(object):
     def __init__(self, game, name):
@@ -40,10 +42,10 @@ class Scene(object):
             isinstance(element, InGameElement)) else element
         del(self.elements[element_name])
        
-    def put_image(self, image, position=(0, 0), name=None):
+    def put_image(self, image, position=None, name=None):
         return self.__add_element__(Image(image, self, name, position))
 
-    def put_animation(self, animation, position=(0, 0), name=None,
+    def put_animation(self, animation, position=None, name=None,
                       persistent=True):
         if isinstance(animation, replika.assets.Loop):
             return self.__add_element__(
@@ -53,7 +55,7 @@ class Scene(object):
                 Animation(animation, self, name, position,
                           persistent=persistent))
 
-    def spawn_puppet(self, animations, position=(0, 0), name=None):
+    def spawn_puppet(self, animations, position=None, name=None):
         return self.__add_element__(
             Puppet(animations, self, name, position))
 
@@ -68,12 +70,12 @@ class Scene(object):
             self.__remove_element__(element)
 
 
-
 class InGameElement(object):
     def __init__(self, scene, name):
         self.name = name
         self.scene = scene
         self.__living = True
+        self.body = None
 
     @property
     def is_live(self):
@@ -104,9 +106,10 @@ class Image(InGameElement):
                                       h=image_asset.height,
                                       x=self.x, y=self.y, z=self.z,
                                       camera=scene.camera)
+        self.body = replika.physics.create_body(image_asset, (self.x, self.y))
                 
     def update(self):
-        self.image.position(self.x, self.y, self.z)
+        self.image.position(self.body.x, self.body.y, self.z)
         self.image.draw()
 
 
@@ -166,7 +169,8 @@ class Animation(Image):
         self.current_tick += 1
         if self.current_tick >= self.__ticks_per_frm:
             self.advance_frame()
-        self.images[self.current_frame].position(self.x, self.y, self.z)
+        self.images[self.current_frame].position(self.body.x, self.body.y,
+                                                 self.z)
         self.images[self.current_frame].draw()
 
     def advance_frame(self):
@@ -205,7 +209,7 @@ class Puppet(InGameElement):
         self.__current_state = 'initial'
         for action in puppet_asset.actions:
             self.animations[action] = self._ingame_(puppet_asset[action])
-
+        self.body = replika.physics.create_body(puppet_asset, position)
         
     def _ingame_(self, animation_asset):
         if isinstance(animation_asset, replika.assets.Loop):
