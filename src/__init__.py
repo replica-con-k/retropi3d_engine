@@ -7,7 +7,8 @@ import traceback
 
 import pi3d
 
-import ingame
+import replika.ingame
+import replika.physics
 
 try:
     import pymunk
