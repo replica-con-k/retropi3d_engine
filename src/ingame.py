@@ -167,7 +167,7 @@ class Animation(Image):
         self.persistent = persistent
 
     @property
-    def finished(self):
+    def is_finished(self):
         return (self.current_frame + 1 >= self.frames)
     
     def reset(self):
@@ -207,7 +207,7 @@ class Loop(Animation):
             animation_asset, scene, name, position, distance, fps)
             
     @property
-    def finished(self):
+    def is_finished(self):
         return False
     
     def advance_frame(self):
@@ -243,7 +243,7 @@ class Puppet(InGameElement):
     @property
     def is_live(self):
         if self.__current_state == 'final':
-            return not self.current_animation.finished
+            return not self.current_animation.is_finished
         return super(Puppet, self).is_live
 
     @property
