@@ -44,7 +44,8 @@ class Scene(object):
         del(self.elements[element_name])
        
     def put_image(self, image, position=None, name=None):
-        return self.__add_element__(Image(image, self, name, position), name)
+        return self.__add_element__(Image(image, self, name, position),
+                                    name)
 
     def put_animation(self, animation, position=None, name=None,
                       persistent=True):
@@ -56,10 +57,14 @@ class Scene(object):
                 Animation(animation, self, name, position,
                           persistent=persistent), name)
 
-    def spawn_puppet(self, animations, position=None, name=None):
-        return self.__add_element__(
-            Puppet(animations, self, name, position), name)
-
+    def spawn_puppet(self, animations, position=None, name=None,
+                     behaviour=None):
+        if behaviour is None:
+            puppet = Puppet(animations, self, name, position)
+        else:
+            puppet = behaviour(animations, self, name, position)
+        return self.__add_element__(puppet, name)
+    
     def notify_collision(self, element1, element2):
         element1 = self.elements[element1]
         element2 = self.elements[element2]
@@ -126,8 +131,8 @@ class Image(InGameElement):
                                       scene.shader,
                                       w=image_asset.width,
                                       h=image_asset.height,
-                                      x=self.body.x, y=self.body.y, z=self.z,
-                                      camera=scene.camera)
+                                      x=self.body.x, y=self.body.y,
+                                      z=self.z, camera=scene.camera)
                 
     def update(self):
         self.image.position(self.body.x, self.body.y, self.z)
@@ -182,8 +187,8 @@ class Animation(Image):
         self.current_tick += 1
         if self.current_tick >= self.__ticks_per_frm:
             self.advance_frame()
-        self.images[self.current_frame].position(self.body.x, self.body.y,
-                                                 self.z)
+        self.images[self.current_frame].position(
+            self.body.x, self.body.y, self.z)
         self.images[self.current_frame].draw()
 
     def advance_frame(self):
@@ -222,6 +227,7 @@ class Puppet(InGameElement):
         self.__current_state = 'initial'
         for action in puppet_asset.actions:
             self.animations[action] = self._ingame_(puppet_asset[action])
+            self.animations[action].body = self.body
         
     def _ingame_(self, animation_asset):
         if isinstance(animation_asset, replika.assets.Loop):

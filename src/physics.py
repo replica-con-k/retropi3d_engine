@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #
+import copy
 
 import replika.assets
 
@@ -10,17 +11,33 @@ def create_body(asset_element, position=(0, 0)):
 
 class NoBody(object):
     def __init__(self, position=(0, 0)):
-        self.position = position
+        self._position = position
 
     @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, new_position):
+        self._position = copy.copy(new_position)
+        
+    @property
     def x(self):
-        return self.position[0]
+        return self._position[0]
+
+    @x.setter
+    def x(self, new_column):
+        self._position = (new_column, self.position[1])
 
     @property
     def y(self):
-        return self.position[1]
+        return self._position[1]
 
+    @y.setter
+    def y(self, new_row):
+        self._position = (self.position[0], new_row)
 
+        
 class Body(NoBody):
     def __init__(self, size, position=(0, 0)):
         '''

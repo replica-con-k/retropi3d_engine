@@ -82,8 +82,10 @@ class Game(object):
         return self.current_scene.put_animation(animation, position, name,
                                                 persistent)
 
-    def spawn_puppet(self, animations, position=(0, 0), name=None):
-        return self.current_scene.spawn_puppet(animations, position, name)
+    def spawn_puppet(self, animations, position=(0, 0), name=None,
+                     behaviour=None):
+        return self.current_scene.spawn_puppet(animations, position, name,
+                                               behaviour=behaviour)
                           
     @property
     def is_running(self):
