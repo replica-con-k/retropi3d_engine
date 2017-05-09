@@ -11,16 +11,14 @@ import random
 game = replika.new_game()
 tileset = replika.assets.load_tileset('../assets/tileset.png',
                                       grid_size=(16, 12))
-
 test.start('Draw tiles')
 
 try:
     while game.is_running:
-        position = (random.randint(-512, 512),
-                    random.randint(-384, 384))
         tile = random.randint(0, len(tileset))
-        game.put_image(tileset[tile],
-                       position)
+        game.add_asset(tileset[tile],
+                       position=(random.randint(-512, 512),
+                                 random.randint(-384, 384)))
         game.update()
         if game.frame >= 100:
             game.quit()

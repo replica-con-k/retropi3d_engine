@@ -14,7 +14,7 @@ background = replika.assets.image('../assets/background.jpg')
 star = replika.assets.image('../assets/star.png')
 
 game = replika.new_game()
-game.put_image(background)
+game.add_asset(background)
 
 test.start('Collision test')
 
@@ -24,9 +24,9 @@ def collision_handler(ingame_object):
 try:
     star_no = 0
     while game.is_running:
-        element = game.put_image(star,
-                                 (random.randint(-512, 512),
-                                  random.randint(-384, 384)),
+        element = game.add_asset(star,
+                                 position=(random.randint(-512, 512),
+                                           random.randint(-384, 384)),
                                  name='star_%s' % star_no)
         element.collision = collision_handler
         element.body = replika.physics.create_body(star)

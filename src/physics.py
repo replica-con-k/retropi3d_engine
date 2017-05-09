@@ -57,8 +57,8 @@ class Body(NoBody):
     
 
 class World(object):
-    def __init__(self, scene):
-        self.scene = scene
+    def __init__(self, collision_cb):
+        self.collision_cb = collision_cb
         self.bodies = {}
 
     def add_element(self, element):
@@ -74,8 +74,10 @@ class World(object):
         processed = {}
         for body_name in self.bodies.keys():
             body = self.bodies[body_name]
+            if not isinstance(body, Body):
+                continue
             for already_processed in processed.keys():
                 if self._collide_(body, already_processed):
-                    self.scene.notify_collision(body_name,
-                                                processed[already_processed])
+                    self.collision_cb(body_name,
+                                      processed[already_processed])
             processed[body] = body_name

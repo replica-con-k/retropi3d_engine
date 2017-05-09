@@ -74,18 +74,8 @@ class Game(object):
     def fps(self):
         return self._fps
 
-    def put_image(self, image, position=(0, 0), name=None):
-        return self.current_scene.put_image(image, position, name)
-
-    def put_animation(self, animation, position=(0, 0), name=None,
-                      persistent=True):
-        return self.current_scene.put_animation(animation, position, name,
-                                                persistent)
-
-    def spawn_puppet(self, animations, position=(0, 0), name=None,
-                     behaviour=None):
-        return self.current_scene.spawn_puppet(animations, position, name,
-                                               behaviour=behaviour)
+    def add_asset(self, asset, position=(0, 0), name=None):
+        return self.current_scene.add_asset(asset, position, name)
                           
     @property
     def is_running(self):

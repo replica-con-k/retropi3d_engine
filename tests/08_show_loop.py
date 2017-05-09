@@ -10,7 +10,7 @@ import replika.assets
 
 game = replika.new_game()
 background = replika.assets.image('../assets/background.jpg')
-game.put_image(background)
+game.add_asset(background)
 
 animation = replika.assets.Loop(
     replika.assets.images(sorted(glob.glob('../assets/walk_*.png')))
@@ -18,7 +18,7 @@ animation = replika.assets.Loop(
 
 test.start('Show loop animation')
 try:
-    game.put_animation(animation)
+    game.add_asset(animation)
 except:
     test.failed('Cannot show animation')
     

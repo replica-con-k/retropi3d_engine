@@ -18,7 +18,7 @@ puppet = replika.assets.Puppet({
 })
 
 try:
-    puppet = game.spawn_puppet(puppet)
+    puppet = game.add_asset(puppet)
 except Exception:
     test.failed('Cannot instance a puppet')
 

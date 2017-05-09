@@ -19,7 +19,7 @@ test.start('Blit image')
 try:
     image = replika.assets.paste_in(image, star, position=(-10, -10))
     image = replika.assets.paste_in(image, star, position=(10, 10))
-    game.put_image(image)
+    game.add_asset(image)
     while game.is_running:
         game.update()
         if game.frame >= 50:

@@ -9,10 +9,10 @@ import replika.assets
 game = replika.new_game()
 image1 = replika.assets.image('../assets/background.jpg')
 image2 = replika.assets.image('../assets/background.jpg', horizontal_flip=True)
-game.put_image(image1)
+game.add_asset(image1)
 
 scene2 = game.new_scene()
-scene2.put_image(image2)
+scene2.add_asset(image2)
 
 test.start('Switch scenes')
 

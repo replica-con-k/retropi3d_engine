@@ -12,7 +12,7 @@ image = replika.assets.image('../assets/background.jpg')
 test.start('Show image')
 
 try:
-    game.put_image(image)
+    game.add_asset(image)
 except:
     test.failed('Cannot show image')
 

@@ -16,17 +16,17 @@ woman = replika.assets.Loop(
     replika.assets.images(sorted(glob.glob('../assets/walk_*.png'))))
 
 game = replika.new_game()
-game.put_image(background)
+game.add_asset(background)
 
 test.start('Move elements')
 
-image = game.put_image(star, (random.randint(-512, 512),
-                              random.randint(-300, 300)))
-
-animation = game.put_animation(woman, (random.randint(-512, 512),
+image = game.add_asset(star, position=(random.randint(-512, 512),
                                        random.randint(-300, 300)))
 
-puppet = game.spawn_puppet(replika.assets.Puppet({
+animation = game.add_asset(woman, position=(random.randint(-512, 512),
+                                            random.randint(-300, 300)))
+
+puppet = game.add_asset(replika.assets.Puppet({
     'initial': replika.assets.Loop(
         replika.assets.images(sorted(glob.glob('../assets/walk_*.png')))),
     'move_right': replika.assets.Loop(
@@ -34,7 +34,9 @@ puppet = game.spawn_puppet(replika.assets.Puppet({
     'move_left': replika.assets.Loop(
         replika.assets.images(sorted(glob.glob('../assets/walk_*.png')),
                               horizontal_flip=True))
-}), (random.randint(-512, 512), random.randint(-300, 300)))
+}),
+                        position=(random.randint(-512, 512),
+                                  random.randint(-300, 300)))
 
 
 x_image = image.body.x

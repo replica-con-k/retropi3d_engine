@@ -15,7 +15,7 @@ K_QUIT = 1
 
 test.start('Move puppet')
 game = replika.new_game()
-puppet = game.spawn_puppet(replika.assets.Puppet({
+puppet = game.add_asset(replika.assets.Puppet({
     'initial': replika.assets.Loop(
         replika.assets.images(sorted(glob.glob('../assets/walk_*.png')))),
     'move_right': replika.assets.Loop(

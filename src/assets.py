@@ -34,10 +34,11 @@ class Image(object):
 
 
 class Animation(object):
-    def __init__(self, images, position=None, fps=None):
+    def __init__(self, images, position=None, fps=None, persistent=True):
         self.images = images
         self.position = position
         self.fps = fps
+        self.persistent = persistent
         
     @property
     def textures(self):
@@ -58,15 +59,16 @@ class Animation(object):
 
 class Loop(Animation):
     def __init__(self, images, position=None, fps=None):
-        super(Loop, self).__init__(images, position, fps)
+        super(Loop, self).__init__(images, position, fps, True)
 
 
 class Puppet(object):
-    def __init__(self, animations, position=None):
+    def __init__(self, animations, position=None, behaviour=None):
         assert(isinstance(animations, dict))
         assert('initial' in animations.keys())
         self.animations = animations
         self.position = position
+        self.behaviour = behaviour
 
     @property
     def actions(self):

@@ -11,15 +11,96 @@ import replika.assets
 import replika.physics
 
 
+class Layer(object):
+    '''
+    This class is just a container of InGame elements
+    '''
+    def __init__(self, name=None, scene=None):
+        self.name = name or str(uuid.uuid4())
+        self.scene = scene
+        self.elements = collections.OrderedDict()
+        self.world = replika.physics.World(self.notify_collision)
+
+    @property
+    def shader(self):
+        return self.scene.shader
+
+    @property
+    def camera(self):
+        return self.scene.camera
+
+    def add_asset(self, asset, position=None, name=None):
+        name = name or str(uuid.uuid4())
+        if isinstance(asset, replika.assets.Image):
+            element = Image(asset, self, name, position)
+        elif isinstance(asset, replika.assets.Loop):
+            element = Loop(asset, self, name, position)
+        elif isinstance(asset, replika.assets.Animation):
+            element = Animation(asset, self, name, position)
+        elif isinstance(asset, replika.assets.Puppet):
+            if asset.behaviour is None:
+                element = Puppet(asset, self, name, position)
+            else:
+                element = asset.behaviour(asset, self, name, position)
+        else:
+            raise ValueError(asset)
+        self.elements[element.name] = element
+        self.world.add_element(element)
+        return element
+
+    def remove(self, element):
+        if isinstance(element, InGameElement):
+            element = element.name
+        del(self.elements[element])
+
+    def update(self):
+        self.world.update()
+        dead_elements = []
+        for element in reversed(self.elements.values()):
+            if element.is_live:
+                element.update()
+            else:
+                dead_elements.append(element.name)
+        for element in dead_elements:
+            self.remove(element)
+
+    def notify_collision(self, element1, element2):
+        element1 = self.elements[element1]
+        element2 = self.elements[element2]
+        element1.collision(element2)
+        element2.collision(element1)
+
+
 class Scene(object):
+    '''
+    Game scene controller
+    '''
     def __init__(self, game, name):
         self.__game = game
         self.name = name
         self.__scene_active = True
         self.camera = game.camera
         self.shader = game.shader
-        self.world = replika.physics.World(self)
-        self.elements = collections.OrderedDict()
+        self.layers = collections.OrderedDict()
+        self.layers['background'] = Layer('background', self)
+        self.__current_layer = 'background'
+
+    @property
+    def default_layer(self):
+        return self.layers[self.__current_layer]
+
+    def add_layer(self, layer_name):
+        new_layer = Layer(layer_name, self)
+        self.layers[layer_name] = new_layer
+        return new_layer
+
+    def set_default_layer(self, layer_name):
+        self.__current_layer = layer_name
+
+    def remove_layer(self, layer_name):
+        if layer_name == self.__current_layer:
+            raise Exception('Cannot remove default layer')
+        del(self.layers[layer_name])
 
     @property
     def is_running(self):
@@ -32,61 +113,19 @@ class Scene(object):
     def fps(self):
         return self.__game.fps
 
-    def __add_element__(self, element, name=None):
-        name = name or str(uuid.uuid4())
-        element.name = name
-        self.elements[name] = element
-        return element
-
-    def __remove_element__(self, element):
-        element_name = element.name if (
-            isinstance(element, InGameElement)) else element
-        del(self.elements[element_name])
-       
-    def put_image(self, image, position=None, name=None):
-        return self.__add_element__(Image(image, self, name, position),
-                                    name)
-
-    def put_animation(self, animation, position=None, name=None,
-                      persistent=True):
-        if isinstance(animation, replika.assets.Loop):
-            return self.__add_element__(
-                Loop(animation, self, name, position), name)
-        else:
-            return self.__add_element__(
-                Animation(animation, self, name, position,
-                          persistent=persistent), name)
-
-    def spawn_puppet(self, animations, position=None, name=None,
-                     behaviour=None):
-        if behaviour is None:
-            puppet = Puppet(animations, self, name, position)
-        else:
-            puppet = behaviour(animations, self, name, position)
-        return self.__add_element__(puppet, name)
-    
-    def notify_collision(self, element1, element2):
-        element1 = self.elements[element1]
-        element2 = self.elements[element2]
-        element1.collision(element2)
-        element2.collision(element1)
+    def add_asset(self, element, position=None, name=None, layer=None):
+        layer = self.default_layer if layer is None else self.layers[layer]
+        return layer.add_asset(element, position, name)
 
     def update(self):
-        self.world.update()
-        dead_elements = []
-        for element in reversed(self.elements.values()):
-            if element.is_live:
-                element.update()
-            else:
-                dead_elements.append(element.name)
-        for element in dead_elements:
-            self.__remove_element__(element)
+        for layer in reversed(self.layers.values()):
+            layer.update()
 
 
 class InGameElement(object):
-    def __init__(self, scene, name):
+    def __init__(self, layer, name):
         self.name = name
-        self.scene = scene
+        self.layer = layer
         self.__living = True
         self._body_ = replika.physics.NoBody()
 
@@ -99,7 +138,7 @@ class InGameElement(object):
         position = self._body_.position
         self._body_ = new_body
         self._body_.position = position
-        self.scene.world.add_element(self)
+        self.layer.world.add_element(self)
 
     @property
     def is_live(self):
@@ -111,14 +150,14 @@ class InGameElement(object):
     def update(self):
         pass
 
-    def collision(self, other):
+    def collision(self, other_element):
         pass
 
 
 class Image(InGameElement):
-    def __init__(self, image_asset, scene, name,
+    def __init__(self, image_asset, layer, name,
                  position=None, distance=5.0):
-        super(Image, self).__init__(scene, name)
+        super(Image, self).__init__(layer, name)
         if position is None:
             if image_asset.position is not None:
                 self.body.position = image_asset.position
@@ -128,11 +167,11 @@ class Image(InGameElement):
             self.body.position = position
         self.z = distance
         self.image = pi3d.ImageSprite(image_asset.texture,
-                                      scene.shader,
+                                      layer.shader,
                                       w=image_asset.width,
                                       h=image_asset.height,
                                       x=self.body.x, y=self.body.y,
-                                      z=self.z, camera=scene.camera)
+                                      z=self.z, camera=layer.camera)
                 
     def update(self):
         self.image.position(self.body.x, self.body.y, self.z)
@@ -140,16 +179,16 @@ class Image(InGameElement):
 
 
 class Animation(Image):
-    def __init__(self, animation_asset, scene, name,
-                 position=None, distance=5.0, fps=None, persistent=True):
+    def __init__(self, animation_asset, layer, name,
+                 position=None, distance=5.0, fps=None):
         super(Animation, self).__init__(animation_asset.first_frame,
-                                        scene, name, position, distance)
+                                        layer, name, position, distance)
         self.images = [
             pi3d.ImageSprite(
-                frame.texture, scene.shader,
+                frame.texture, layer.shader,
                 w=frame.width, h=frame.height,
                 x=self.body.x, y=self.body.y, z=self.z,
-                camera=scene.camera
+                camera=layer.camera
             ) for frame in animation_asset.images
         ]
         self.frames = len(self.images)
@@ -159,12 +198,12 @@ class Animation(Image):
         self.__fps = None
         if fps is None:
             if animation_asset.fps is None:
-                self.fps = scene.fps
+                self.fps = layer.scene.fps
             else:
                 self.fps = animation_asset.fps
         else:
             self.fps = fps
-        self.persistent = persistent
+        self.persistent = animation_asset.persistent
 
     @property
     def is_finished(self):
@@ -181,7 +220,7 @@ class Animation(Image):
     @fps.setter
     def fps(self, fps):
         self.__fps = fps
-        self.__ticks_per_frm = round(float(self.scene.fps)/float(fps))
+        self.__ticks_per_frm = round(float(self.layer.scene.fps)/float(fps))
 
     def update(self):
         self.current_tick += 1
@@ -201,10 +240,10 @@ class Animation(Image):
 
 
 class Loop(Animation):
-    def __init__(self, animation_asset, scene, name, position=None,
+    def __init__(self, animation_asset, layer, name, position=None,
                  distance=5.0, fps=None):
         super(Loop, self).__init__(
-            animation_asset, scene, name, position, distance, fps)
+            animation_asset, layer, name, position, distance, fps)
             
     @property
     def is_finished(self):
@@ -218,9 +257,9 @@ class Loop(Animation):
 
 
 class Puppet(InGameElement):
-    def __init__(self, puppet_asset, scene, name, position=None,
+    def __init__(self, puppet_asset, layer, name, position=None,
                  distance=5.0):
-        super(Puppet, self).__init__(scene, name)
+        super(Puppet, self).__init__(layer, name)
         self.animations = {}
         self.body.position = position
         self.distance = distance
@@ -231,11 +270,11 @@ class Puppet(InGameElement):
         
     def _ingame_(self, animation_asset):
         if isinstance(animation_asset, replika.assets.Loop):
-            return Loop(animation_asset, self.scene, self.name,
+            return Loop(animation_asset, self.layer, self.name,
                         position=self.body.position,
                         distance=self.distance)
         elif isinstance(animation_asset, replika.assets.Animation):
-            return Animation(animation_asset, self.scene, self.name,
+            return Animation(animation_asset, self.layer, self.name,
                              position=self.body.position,
                              distance=self.distance)
         raise ValueError

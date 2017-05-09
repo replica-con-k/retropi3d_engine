@@ -11,7 +11,7 @@ import replika.assets
 
 game = replika.new_game()
 background = replika.assets.image('../assets/background.jpg')
-game.put_image(background)
+game.add_asset(background)
 
 animation_frames = replika.assets.Loop(
     replika.assets.images(sorted(glob.glob('../assets/walk_*.png')))
@@ -20,9 +20,9 @@ animation_frames = replika.assets.Loop(
 test.start('Show loop animation')
 try:
     while game.is_running:
-        position = (random.randint(-512, 512),
-                    random.randint(-384, 384))
-        game.put_animation(animation_frames, position)
+        game.add_asset(animation_frames,
+                       position=(random.randint(-512, 512),
+                                 random.randint(-384, 384)))
         game.update()
         if game.frame >= 100:
             game.quit()

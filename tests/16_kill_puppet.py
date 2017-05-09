@@ -19,7 +19,7 @@ puppet = replika.assets.Puppet({
                                     grid_size=(5, 3)))
 })
 
-puppet = game.spawn_puppet(puppet)
+puppet = game.add_asset(puppet)
 while (game.is_running):
     game.update()
     if game.frame >= 100:

@@ -12,8 +12,9 @@ import replika.assets
 
 game = replika.new_game()
 explosion = replika.assets.Animation(
-     replika.assets.load_tileset('../assets/explosion-sprite.png',
-                                 grid_size=(5, 3)))
+    replika.assets.load_tileset('../assets/explosion-sprite.png',
+                                grid_size=(5, 3)),
+    persistent=False)
 
 test.start('Auto kill animations')
 
@@ -21,7 +22,7 @@ while (game.is_running):
     position = (random.randint(-512, 512),
                 random.randint(-384, 384))
     try:
-        game.put_animation(explosion, position, persistent=False)
+        game.add_asset(explosion, position)
     except:
         test.failed('Cannot put auto-kill animation')
     game.update()

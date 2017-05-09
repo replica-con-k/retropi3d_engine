@@ -14,7 +14,7 @@ animation = replika.assets.Loop(
 test.start('Animate tiles')
 
 try:
-    game.put_animation(animation)
+    game.add_asset(animation)
 except:
     test.failed('Cannot animate tiles')
     
