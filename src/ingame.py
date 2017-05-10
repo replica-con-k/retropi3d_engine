@@ -89,7 +89,9 @@ class Scene(object):
     def default_layer(self):
         return self.layers[self.__current_layer]
 
-    def add_layer(self, layer_name):
+    def new_layer(self, layer_name=None):
+        if layer_name is None:
+            layer_name = str(uuid.uuid4())
         new_layer = Layer(layer_name, self)
         self.layers[layer_name] = new_layer
         return new_layer

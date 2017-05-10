@@ -48,7 +48,7 @@ class Game(object):
         self.new_scene('initial')
         self.__current_scene = 'initial'
 
-    def new_scene(self, name=None):
+    def new_scene(self, name=None, auto_switch=False):
         name = name or str(uuid.uuid4())
         scene = ingame.Scene(self, name)
         self.scenes[name] = scene
