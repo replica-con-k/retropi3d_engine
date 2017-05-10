@@ -20,6 +20,8 @@ class Layer(object):
         self.scene = scene
         self.elements = collections.OrderedDict()
         self.world = replika.physics.World(self.notify_collision)
+        # NOTE: layer scroll not affect the body position!!
+        self.offset = (0, 0)
 
     @property
     def shader(self):
@@ -116,13 +118,7 @@ class Scene(object):
         return self.__game.fps
 
     def add_asset(self, element, position=None, name=None, layer=None):
-        if layer is None:
-            layer = self.default_layer
-        else:
-            if isinstance(layer, str) or isinstance(layer, unicode):
-                layer = self.layers[layer]
-            # else: assumed isinstance(layer, Layer)
-            layer = self.default_layer if layer is None else self.layers[layer]
+        layer = self.default_layer if layer is None else self.layers[layer]
         return layer.add_asset(element, position, name)
 
     def update(self):
@@ -182,7 +178,8 @@ class Image(InGameElement):
                                       z=self.z, camera=layer.camera)
                 
     def update(self):
-        self.image.position(self.body.x, self.body.y, self.z)
+        self.image.position(self.body.x + self.layer.offset[0],
+                            self.body.y + self.layer.offset[1], self.z)
         self.image.draw()
 
 
@@ -235,7 +232,8 @@ class Animation(Image):
         if self.current_tick >= self.__ticks_per_frm:
             self.advance_frame()
         self.images[self.current_frame].position(
-            self.body.x, self.body.y, self.z)
+            self.body.x + self.layer.offset[0],
+            self.body.y + self.layer.offset[1], self.z)
         self.images[self.current_frame].draw()
 
     def advance_frame(self):
