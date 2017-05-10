@@ -52,6 +52,8 @@ class Game(object):
         name = name or str(uuid.uuid4())
         scene = ingame.Scene(self, name)
         self.scenes[name] = scene
+        if auto_switch:
+            self.switch_scene(scene)
         return scene
         
     @property

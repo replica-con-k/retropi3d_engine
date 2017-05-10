@@ -116,7 +116,13 @@ class Scene(object):
         return self.__game.fps
 
     def add_asset(self, element, position=None, name=None, layer=None):
-        layer = self.default_layer if layer is None else self.layers[layer]
+        if layer is None:
+            layer = self.default_layer
+        else:
+            if isinstance(layer, str) or isinstance(layer, unicode):
+                layer = self.layers[layer]
+            # else: assumed isinstance(layer, Layer)
+            layer = self.default_layer if layer is None else self.layers[layer]
         return layer.add_asset(element, position, name)
 
     def update(self):
