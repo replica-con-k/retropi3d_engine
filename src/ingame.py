@@ -40,10 +40,9 @@ class Layer(object):
         elif isinstance(asset, replika.assets.Animation):
             element = Animation(asset, self, name, position)
         elif isinstance(asset, replika.assets.Puppet):
-            if asset.behaviour is None:
-                element = Puppet(asset, self, name, position)
-            else:
-                element = asset.behaviour(asset, self, name, position)
+            element = (Puppet(asset, self, name, position)
+                       if asset.behaviour is None else
+                       asset.behaviour(asset, self, name, position))
         else:
             raise ValueError(asset)
         self.elements[element.name] = element
@@ -260,6 +259,14 @@ class Loop(Animation):
         self.current_frame += 1
         if self.current_frame >= self.frames:
             self.current_frame = 0
+
+
+def action(action_method):
+    def new_function(obj):
+        action_name = action_method.__name__
+        obj.set_state(action_name)
+        action_method(obj)
+    return new_function
 
 
 class Puppet(InGameElement):
