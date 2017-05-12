@@ -61,10 +61,12 @@ test.start('"action" decorator test')
 while game.is_running:
     position = (random.randint(-512, 512), random.randint(-384, 384))
     try:
-        scene.add_asset(woman_puppet, position=position)
+        if game.frame < 100:
+            scene.add_asset(woman_puppet, position=position)
     except:
         test.failed('"action" decorator test failed')
-    if game.frame >= 50:
+
+    if replika.key_state(1) or (game.frame > 5000):
         game.quit()
     game.update()
 
