@@ -126,7 +126,7 @@ def _keyboard_handler_(sourceType, sourceIndex, key, value):
             _MOUSE_LEFT_BUTTON_ = value == 1
         if key == 273:
             _MOUSE_RIGHT_BUTTON_ = value == 1
-    _KEYBOARD_[key] = (value == 1)
+    _KEYBOARD_[key] = ((value == 1) or (value == 2))
     print sourceType, sourceIndex, key, value
 
 
