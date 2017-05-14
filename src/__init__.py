@@ -24,8 +24,17 @@ _DEFAULT_SHADER_ = 'uv_flat'
 class _No_input_(object):
     def do_input_events(self):
         pass
+
+class _No_mouse_(object):
+    def position(self):
+        return (0, 0)
+
 _INPUTS_ = _No_input_()
+_MOUSE_ = _No_mouse_()
 _KEYBOARD_ = {}
+_MOUSE_POSITION_ = (0, 0)
+_MOUSE_LEFT_BUTTON_ = False
+_MOUSE_RIGHT_BUTTON_ = False
 
 K_ESC = 1
 
@@ -33,6 +42,11 @@ K_ESC = 1
 def key_state(key):
     return _KEYBOARD_.get(key, False)
 
+def mouse_position():
+    return _MOUSE_POSITION_
+
+def mouse_buttons():
+    return _MOUSE_LEFT_BUTTON_, _MOUSE_RIGHT_BUTTON_
 
 class Game(object):
     def __init__(self, resolution, fps):
@@ -103,15 +117,29 @@ class Game(object):
 
 def _keyboard_handler_(sourceType, sourceIndex, key, value):
     global _KEYBOARD_
+    global _MOUSE_LEFT_BUTTON_    
+    global _MOUSE_RIGHT_BUTTON_
     if sourceType != 'keyboard':
         return
+    if sourceIndex == 4:
+        if key == 272:
+            _MOUSE_LEFT_BUTTON_ = value == 1
+        if key == 273:
+            _MOUSE_RIGHT_BUTTON_ = value == 1
     _KEYBOARD_[key] = (value == 1)
     print sourceType, sourceIndex, key, value
+
+
+def _mouse_handler_(sourceType, sourceIndex, x, y, v, h):
+    global _MOUSE_POSITION_
+    _MOUSE_POSITION_ = (_MOUSE_POSITION_[0] + x, _MOUSE_POSITION_[1] + y)
 
 
 def new_game(resolution=_DEFAULT_RESOLUTION_, fps=_DEFAULT_FPS_,
              do_input=True):
     global _INPUTS_
+    game = Game(resolution, fps)
     if isinstance(_INPUTS_, _No_input_) and do_input:
-        _INPUTS_ = pi3d.event.Event.InputEvents(_keyboard_handler_)
-    return Game(resolution, fps)
+        _INPUTS_ = pi3d.event.Event.InputEvents(_keyboard_handler_,
+                                                _mouse_handler_)
+    return game
