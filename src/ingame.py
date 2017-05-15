@@ -7,69 +7,9 @@ import collections
 
 import pi3d
 
+import replika.layer
 import replika.assets
 import replika.physics
-
-
-class Layer(object):
-    '''
-    This class is just a container of InGame elements
-    '''
-    def __init__(self, name=None, scene=None):
-        self.name = name or str(uuid.uuid4())
-        self.scene = scene
-        self.elements = collections.OrderedDict()
-        self.world = replika.physics.World(self.notify_collision)
-        # NOTE: layer scroll not affect the body position!!
-        self.offset = (0, 0)
-
-    @property
-    def shader(self):
-        return self.scene.shader
-
-    @property
-    def camera(self):
-        return self.scene.camera
-
-    def add_asset(self, asset, position=None, name=None):
-        name = name or str(uuid.uuid4())
-        if isinstance(asset, replika.assets.Image):
-            element = Image(asset, self, name, position)
-        elif isinstance(asset, replika.assets.Loop):
-            element = Loop(asset, self, name, position)
-        elif isinstance(asset, replika.assets.Animation):
-            element = Animation(asset, self, name, position)
-        elif isinstance(asset, replika.assets.Puppet):
-            element = (Puppet(asset, self, name, position)
-                       if asset.behaviour is None else
-                       asset.behaviour(asset, self, name, position))
-        else:
-            raise ValueError(asset)
-        self.elements[element.name] = element
-        self.world.add_element(element)
-        return element
-
-    def remove(self, element):
-        if isinstance(element, InGameElement):
-            element = element.name
-        del(self.elements[element])
-
-    def update(self):
-        self.world.update()
-        dead_elements = []
-        for element in reversed(self.elements.values()):
-            if element.is_live:
-                element.update()
-            else:
-                dead_elements.append(element.name)
-        for element in dead_elements:
-            self.remove(element)
-
-    def notify_collision(self, element1, element2):
-        element1 = self.elements[element1]
-        element2 = self.elements[element2]
-        element1.collision(element2)
-        element2.collision(element1)
 
 
 class Scene(object):
@@ -83,22 +23,24 @@ class Scene(object):
         self.camera = game.camera
         self.shader = game.shader
         self.layers = collections.OrderedDict()
-        self.layers['background'] = Layer('background', self)
+        self.layers['background'] = replika.layer.Layer('background', self)
         self.__current_layer = 'background'
 
     @property
     def default_layer(self):
         return self.layers[self.__current_layer]
 
-    def new_layer(self, layer_name=None):
+    def new_layer(self, layer_name=None, layer_type=replika.layer.Layer):
         if layer_name is None:
             layer_name = str(uuid.uuid4())
-        new_layer = Layer(layer_name, self)
+        new_layer = layer_type(layer_name, self)
         self.layers[layer_name] = new_layer
         return new_layer
 
-    def set_default_layer(self, layer_name):
-        self.__current_layer = layer_name
+    def set_default_layer(self, layer):
+        if isinstance(layer, replika.layer.Layer):
+            layer = layer.name
+        self.__current_layer = layer
 
     def remove_layer(self, layer_name):
         if layer_name == self.__current_layer:
@@ -141,7 +83,8 @@ class InGameElement(object):
         position = self._body_.position
         self._body_ = new_body
         self._body_.position = position
-        self.layer.world.add_element(self)
+        if isinstance(self.layer, replika.layer.PhysicsLayer):
+            self.layer.world.add_element(self)
 
     @property
     def is_live(self):

@@ -6,6 +6,7 @@ import random
 import test
 
 import replika
+import replika.layer
 import replika.assets
 import replika.physics
 
@@ -15,6 +16,9 @@ star = replika.assets.image('../assets/star.png')
 
 game = replika.new_game()
 game.add_asset(background)
+game.current_scene.new_layer('foreground',
+                             layer_type=replika.layer.PhysicsLayer)
+game.current_scene.set_default_layer('foreground')
 
 test.start('Collision test')
 
