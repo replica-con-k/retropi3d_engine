@@ -17,7 +17,7 @@ class Scene(object):
     Game scene controller
     '''
     def __init__(self, game, name):
-        self.__game = game
+        self.game = game
         self.name = name
         self.__scene_active = True
         self.camera = game.camera
@@ -49,14 +49,14 @@ class Scene(object):
 
     @property
     def is_running(self):
-        return self.__scene_active and self.__game.is_running
+        return self.__scene_active and self.game.is_running
 
     def quit(self):
         self.__scene_active = False
 
     @property
     def fps(self):
-        return self.__game.fps
+        return self.game.fps
 
     def add_asset(self, element, position=None, name=None, layer=None):
         layer = self.default_layer if layer is None else self.layers[layer]
@@ -281,3 +281,20 @@ class Puppet(InGameElement):
 
     def update(self):
         self.current_animation.update()
+
+#
+# Factory
+#
+def new(asset, layer, name, position):
+    if isinstance(asset, replika.assets.Image):
+        return replika.ingame.Image(asset, layer, name, position)
+    elif isinstance(asset, replika.assets.Loop):
+        return replika.ingame.Loop(asset, layer, name, position)
+    elif isinstance(asset, replika.assets.Animation):
+        return replika.ingame.Animation(asset, layer, name, position)
+    elif isinstance(asset, replika.assets.Puppet):
+        return (replika.ingame.Puppet(asset, layer, name, position)
+                if asset.behaviour is None else
+                asset.behaviour(asset, layer, name, position))
+    else:
+        raise ValueError(asset)
