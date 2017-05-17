@@ -13,10 +13,13 @@ import replika.assets
 background = replika.assets.image('../assets/parallax_05.png')
 game = replika.new_game((background.size[0] * 2, background.size[1]))
 scene = game.new_scene(auto_switch=True)
-scroll = scene.new_layer(layer_type=replika.layer.HorizontalScroll)
-scroll.add_asset(background)
 
 test.start('Scroll layer test')
+try:
+    scroll = scene.new_layer(layer_type=replika.layer.HorizontalScroll)
+except:
+    test.failed('Cannot create HorizontalScroll() layer')
+scroll.add_asset(background)
 
 while game.is_running:
     if replika.key_state(105):
