@@ -23,10 +23,10 @@ for plane_image in reversed(sorted(glob.glob('../assets/parallax_*.png'))):
 test.start('Parallax scroll test')
 
 while game.is_running:
-    speed_factor = 0
+    speed_factor = 1.0
     for plane in background_planes:
-        plane.move((-5 + speed_factor, 0))
-        speed_factor -= 2
+        plane.move((int(-3.0 * speed_factor), 0))
+        speed_factor *= 1.4
     if (game.frame > 100) or replika.key_state(1):
         game.quit()
     game.update()
