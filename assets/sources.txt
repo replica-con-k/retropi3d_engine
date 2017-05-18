@@ -8,3 +8,4 @@ I'm not a very good artist so I get some assets around Internet... here the sour
  - scroll.png: http://coilhouse.net/2011/10/the-tokyo-that-tumblr-forgot/
  - parallax_*.png: http://pixeljoint.com/pixelart/64724.htm
  - continuous_background.jpg: http://panel.pixli.ru/blog/web-design/622-teksturyi-v-veb-dizajne.html
+ - ghostly_gouls.png (edited by me to add alpha): http://www.themesltd.com/tumblr/monster-tumblr-themes/dashboard.php?theme=ghostly_gouls
