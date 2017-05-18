@@ -82,7 +82,6 @@ class HorizontalScroll(Layer):
         self.background = None
         self._size = (0, 0)
         self._image_size = (0, 0)
-        self._num_images = 1
         self._x_ofs = 0
         self._y_ofs = 0
         super(HorizontalScroll, self).__init__(name, scene)
@@ -100,17 +99,13 @@ class HorizontalScroll(Layer):
             self._x_ofs = -self._size[0] / 2
             if self.background is not None:
                 self._x_ofs -= (self._image_size[0] / 2)
-                self._num_images = int(self._size[0] / self._image_size[0]) + 2
             
     def add_asset(self, asset, position=(0, 0), name='background'):
         if name == 'background':
             self.background = replika.ingame.new(asset, self, name, position)
             self._image_size = asset.size
-            self._num_images = int(self._size[0] / self._image_size[0]) + 2
             return self.background
-        else:
-            return super(HorizontalScroll, self).add_asset(asset,
-                                                           position, name)
+        return super(HorizontalScroll, self).add_asset(asset, position, name)
 
     def move(self, offset):
         self._x_ofs += offset[0]
@@ -119,8 +114,55 @@ class HorizontalScroll(Layer):
     def update(self):
         x_ofs = (self._x_ofs % self._image_size[0]) - self._size[0]
         y_ofs = self._y_ofs % self._image_size[1]
-        for image in range(self._num_images):
+        while (x_ofs <= self._size[0]):
             self.background.image.position(x_ofs , y_ofs, 5.0)
             self.background.image.draw()
             x_ofs += self._image_size[0]
         super(HorizontalScroll, self).update()
+
+
+class VerticalScroll(Layer):
+    '''
+    A simple image background with infinite len
+    '''
+    def __init__(self, name=None, scene=None):
+        self.background = None
+        self._size = (0, 0)
+        self._image_size = (0, 0)
+        self._x_ofs = 0
+        self._y_ofs = 0
+        super(VerticalScroll, self).__init__(name, scene)
+        self.scene = scene
+
+    @property
+    def scene(self):
+        return self.__scene
+
+    @scene.setter
+    def scene(self, scene):
+        self.__scene = scene
+        if scene is not None:
+            self._size = (scene.game.display.width, scene.game.display.height)
+            self._y_ofs = -self._size[1] / 2
+            if self.background is not None:
+                self._y_ofs -= (self._image_size[1] / 2)
+            
+    def add_asset(self, asset, position=(0, 0), name='background'):
+        if name == 'background':
+            self.background = replika.ingame.new(asset, self, name, position)
+            self._image_size = asset.size
+            return self.background
+        return super(VerticalScroll, self).add_asset(asset, position, name)
+
+    def move(self, offset):
+        self._x_ofs += offset[0]
+        self._y_ofs += offset[1]
+
+    def update(self):
+        x_ofs = (self._x_ofs % self._image_size[0])
+        y_ofs = (self._y_ofs % self._image_size[1]) - self._size[1]
+        while (y_ofs <= self._size[1]):
+            self.background.image.position(x_ofs , y_ofs, 5.0)
+            self.background.image.draw()
+            y_ofs += self._image_size[1]
+        super(VerticalScroll, self).update()
