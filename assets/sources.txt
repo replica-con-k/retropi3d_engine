@@ -7,3 +7,4 @@ I'm not a very good artist so I get some assets around Internet... here the sour
  - explosion-sprite.png: https://es.pinterest.com/chrisbivins75/pixel-art/
  - scroll.png: http://coilhouse.net/2011/10/the-tokyo-that-tumblr-forgot/
  - parallax_*.png: http://pixeljoint.com/pixelart/64724.htm
+ - continuous_background.jpg: http://panel.pixli.ru/blog/web-design/622-teksturyi-v-veb-dizajne.html
