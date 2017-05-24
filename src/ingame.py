@@ -154,12 +154,12 @@ class Animation(Image):
 
     @property
     def is_finished(self):
-        return (self.current_frame + 1 >= self.frames)
+        return (self.current_frame >= self.frames - 1)
     
     def reset(self):
         self.current_frame = 0
         self.current_tick = 0
-        
+
     @property
     def fps(self):
         return self.__fps
@@ -260,6 +260,8 @@ class Puppet(InGameElement):
     def _switch_animation_(self, animation):
         if animation not in self.animations.keys():
             return False
+        if animation == self.__current_state:
+            return True
         self.__current_state = animation
         self.current_animation.reset()
         return True
@@ -268,8 +270,8 @@ class Puppet(InGameElement):
         self._switch_animation_('initial')
 
     def kill(self):
-        self._switch_animation_('final')
         super(Puppet, self).kill()
+        self._switch_animation_('final')
 
     @property
     def fps(self):
