@@ -91,6 +91,8 @@ class InGameElement(object):
         return self.__living
 
     def kill(self):
+        if isinstance(self.layer, replika.layer.PhysicsLayer):
+            self.layer.world.remove_element(self)
         self.__living = False
 
     def update(self):
@@ -216,6 +218,7 @@ class Puppet(InGameElement):
     def __init__(self, puppet_asset, layer, name, position=None,
                  distance=5.0):
         super(Puppet, self).__init__(layer, name)
+        self._body_ = replika.physics.NoBody()
         self.animations = {}
         self.body.position = position
         self.distance = distance
@@ -223,6 +226,20 @@ class Puppet(InGameElement):
         for action in puppet_asset.actions:
             self.animations[action] = self._ingame_(puppet_asset[action])
             self.animations[action].body = self.body
+
+    @property
+    def body(self):
+        return self._body_
+
+    @body.setter
+    def body(self, new_body):
+        position = self._body_.position
+        self._body_ = new_body
+        self._body_.position = position
+        for animation in self.animations.values():
+            animation.body = self.body
+        if isinstance(self.layer, replika.layer.PhysicsLayer):
+            self.layer.world.add_element(self)
         
     def _ingame_(self, animation_asset):
         if isinstance(animation_asset, replika.assets.Loop):

@@ -68,10 +68,12 @@ class PhysicsLayer(Layer):
         super(PhysicsLayer, self).update()
 
     def notify_collision(self, element1, element2):
-        element1 = self.elements[element1]
-        element2 = self.elements[element2]
-        element1.collision(element2)
-        element2.collision(element1)
+        element1 = self.elements.get(element1, None)
+        element2 = self.elements.get(element2, None)
+        if element1 is not None:
+            element1.collision(element2)
+        if element2 is not None:
+            element2.collision(element1)
         
 
 class HorizontalScroll(Layer):

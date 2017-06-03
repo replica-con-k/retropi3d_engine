@@ -11,31 +11,31 @@ def create_body(asset_element, position=(0, 0)):
 
 class NoBody(object):
     def __init__(self, position=(0, 0)):
-        self._position = position
+        self._x, self._y = position
 
     @property
     def position(self):
-        return self._position
+        return (self._x, self._y)
 
     @position.setter
     def position(self, new_position):
-        self._position = copy.copy(new_position)
+        self._x, self._y = new_position
         
     @property
     def x(self):
-        return self._position[0]
+        return self._x
 
     @x.setter
     def x(self, new_column):
-        self._position = (new_column, self.position[1])
+        self._x = new_column
 
     @property
     def y(self):
-        return self._position[1]
+        return self._y
 
     @y.setter
     def y(self, new_row):
-        self._position = (self.position[0], new_row)
+        self._y = new_row
 
         
 class Body(NoBody):
@@ -63,6 +63,10 @@ class World(object):
 
     def add_element(self, element):
         self.bodies[element.name] = element.body
+
+    def remove_element(self, element):
+        if element.name in self.bodies.keys():
+            del(self.bodies[element.name])
 
     def _collide_(self, body1, body2):
         return ((body1.x < body2.x + body2.width) and
