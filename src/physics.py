@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
-import copy
+
+import math
 
 import replika.assets
 
@@ -69,10 +70,11 @@ class World(object):
             del(self.bodies[element.name])
 
     def _collide_(self, body1, body2):
-        return ((body1.x < body2.x + body2.width) and
-                (body1.x + body1.width > body2.x) and
-                (body1.y < body2.y + body2.height) and
-                (body1.height + body1.y > body2.y))
+        return (
+            (math.fabs(body1.x - body2.x) * 2.0) < (body1.width + body2.width)
+            and
+            (math.fabs(body1.y - body2.y) * 2.0) < (body1.height + body2.height)
+        )
         
     def update(self):
         processed = {}
