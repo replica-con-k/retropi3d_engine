@@ -219,3 +219,41 @@ class Scroll(Layer):
                 y_ofs += self._image_size[1]
             x_ofs += self._image_size[0]
         super(Scroll, self).update()
+
+
+class TileMap(Layer):
+    '''
+    A tile map image
+    '''
+    def __init__(self, tileset, size, name=None, scene=None):
+        super(TileMap, self).__init__(name, scene)
+        self.scene = scene
+        self.tiles = tileset
+        self.map_size = size
+        self._tileimage_ = replika.assets.new_image((
+            self.map_size[0] * self.tiles.cell_size[0],
+            self.map_size[1] * self.tiles.cell_size[1]))
+        self.tilemap = None
+        self._update_tilemap_()
+
+    def _update_tilemap_(self):
+        self.tilemap = replika.ingame.new(self._tileimage_,
+                                          self, 'map', position=(0, 0))
+        
+    def add_asset(self, asset, position=(0, 0), name='map'):
+        if name == 'map':
+            self.set_tile(position, asset)
+            return self.tilemap
+        return super(TileMap, self).add_asset(asset, position, name)
+
+    def set_tile(self, position, tile_id):
+        self._tileimage_ = replika.assets.paste_in(
+            self._tileimage_,
+            self.tiles[tile_id],
+            position=(position[0] * self.tiles.cell_size[0],
+                      position[1] * self.tiles.cell_size[1]))
+        self._update_tilemap_()
+
+    def update(self):
+        self.tilemap.update()
+        super(TileMap, self).update()

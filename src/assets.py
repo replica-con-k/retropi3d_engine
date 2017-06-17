@@ -30,7 +30,8 @@ class Image(object):
 
     @property
     def texture(self):
-        return pi3d.Texture(self.image, blend=False)
+        return pi3d.Texture(self.image, blend=True,
+                            i_format=pi3d.constants.GL_RGBA)
 
 
 class Animation(object):

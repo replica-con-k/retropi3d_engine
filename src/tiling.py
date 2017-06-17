@@ -17,6 +17,12 @@ class TileSet(object):
                             image_asset.height / grid_size[1])
         self.auto_resize = auto_resize
 
+    @property
+    def cell_size(self):
+        if self.auto_resize:
+            return self[0].image.size
+        return self.__cell_size
+
     def __len__(self):
         return self.__size[0] * self.__size[1]
 
