@@ -105,6 +105,10 @@ class InGameElement(object):
 class Image(InGameElement):
     def __init__(self, image_asset, layer, name,
                  position=None, distance=5.0):
+        # Avoid errors in destructors (quick'n'dirty)
+        if image_asset is None:
+            # Create empty image
+            image_asset = replika.assets.new_image((10, 10))
         super(Image, self).__init__(layer, name)
         if position is None:
             if image_asset.position is not None:
